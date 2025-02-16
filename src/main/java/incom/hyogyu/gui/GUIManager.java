@@ -19,7 +19,7 @@ public class GUIManager {
         createMainMenu();
 
         cardPanel.add(mainMenu, "MainMenu");
-        cardPanel.add(new SnakeGamePanel(), "SnakeGame");
+        cardPanel.add(new SnakeGamePanel(this), "SnakeGame");
 
         frame.add(cardPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -36,8 +36,7 @@ public class GUIManager {
         cardLayout.show(cardPanel, panelName);
 
         for (Component component : cardPanel.getComponents()) {
-            if (component instanceof SnakeGamePanel) {
-                SnakeGamePanel snakeGamePanel = (SnakeGamePanel) component;
+            if (component instanceof SnakeGamePanel snakeGamePanel) {
                 if (panelName.equals("SnakeGame")) {
                     snakeGamePanel.startGame();
                     snakeGamePanel.enableKeyListener(true);
@@ -47,11 +46,6 @@ public class GUIManager {
                 }
             }
         }
-    }
-
-    public static void main(String[] args) {
-        new GUIManager();
-
     }
 
 }

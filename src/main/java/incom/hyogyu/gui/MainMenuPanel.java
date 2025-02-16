@@ -14,7 +14,8 @@ public class MainMenuPanel extends JPanel {
         titleLabel.setBounds(440, 10, 500, 100);
         add(titleLabel);
 
-        JButton startButton = new JButton("Start Snake Game");
+        JButton startButton = new JButton("스네이크 게임");
+        startButton.setFont(new Font("Arial", Font.BOLD, 20));
         startButton.setBounds(583, 334, 200, 50);
 
         startButton.addActionListener(new ActionListener() {
