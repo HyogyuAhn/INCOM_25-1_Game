@@ -234,7 +234,7 @@ public class SnakeGamePanel extends JPanel implements ActionListener {
                     snakeBody.remove(snakeBody.size() - 1);
                 }
             }
-            if (applesEaten % 3 == 0) {
+            if (applesEaten % 10 == 0) {
                 triggerRandomEvent();
             }
         } else {
