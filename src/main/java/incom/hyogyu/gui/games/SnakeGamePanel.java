@@ -18,7 +18,7 @@ public class SnakeGamePanel extends JPanel implements ActionListener {
     // --- [ 상수 ] ---
     private static final int TILE_SIZE = 32;  // 타일 크기
     private static final int GAME_WIDTH = 1344;  // 게임 너비 (연산을 위해 축소)
-    private static final int GAME_HEIGHT = 710;  // 게임 높이 (맵 이탈 방지를 위해 축소)
+    private static final int GAME_HEIGHT = 700;  // 게임 높이 (맵 이탈 방지를 위해 축소)
     private static final int INITIAL_DELAY = 120;  // 프레임 속도 (ms)
     private static final int SCORE_AREA_X = GAME_WIDTH - 130;
     private static final int SCORE_AREA_Y = 10;
@@ -234,7 +234,7 @@ public class SnakeGamePanel extends JPanel implements ActionListener {
                     snakeBody.remove(snakeBody.size() - 1);
                 }
             }
-            if (applesEaten % 10 == 0) {
+            if (applesEaten % 10f == 0) {
                 triggerRandomEvent();
             }
         } else {
@@ -312,7 +312,7 @@ public class SnakeGamePanel extends JPanel implements ActionListener {
             }
             g.setColor(Color.WHITE);
             g.setFont(new Font("Arial", Font.BOLD, 20));
-            g.drawString("점수: " + score, SCORE_AREA_X + 75, SCORE_AREA_Y + 20);
+            g.drawString("점수: " + score, SCORE_AREA_X + 50, SCORE_AREA_Y + 20);
         } else {
             drawGameOverScreen(g);
         }

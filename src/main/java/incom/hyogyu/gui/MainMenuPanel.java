@@ -14,18 +14,17 @@ public class MainMenuPanel extends JPanel {
         titleLabel.setBounds(440, 10, 500, 100);
         add(titleLabel);
 
-        JButton startButton = new JButton("스네이크 게임");
-        startButton.setFont(new Font("Arial", Font.BOLD, 20));
-        startButton.setBounds(583, 334, 200, 50);
+        JButton snakeButton = new JButton("스네이크 게임");
+        snakeButton.setFont(new Font("Arial", Font.BOLD, 20));
+        snakeButton.setBounds(583, 334, 200, 50);
+        snakeButton.addActionListener(e -> manager.switchTo("SnakeGame"));
+        add(snakeButton);
 
-        startButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                manager.switchTo("SnakeGame");
-            }
-        });
-
-        add(startButton);
+        JButton dodgeMasterButton = new JButton("피하기 게임");
+        dodgeMasterButton.setFont(new Font("Arial", Font.BOLD, 20));
+        dodgeMasterButton.setBounds(583, 400, 200, 50);
+        dodgeMasterButton.addActionListener(e -> manager.switchTo("DodgeMaster"));
+        add(dodgeMasterButton);
     }
 
 }
