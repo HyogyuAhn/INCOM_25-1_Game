@@ -1,6 +1,8 @@
 package incom.hyogyu.gui.games;
 
 import incom.hyogyu.gui.GUIManager;
+import incom.hyogyu.util.FontManager;
+import incom.hyogyu.util.FontManager.GameFont;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,7 +21,7 @@ public class SnakeGamePanel extends JPanel implements ActionListener {
     private static final int TILE_SIZE = 32;  // 타일 크기
     private static final int GAME_WIDTH = 1344;  // 게임 너비 (연산을 위해 축소)
     private static final int GAME_HEIGHT = 700;  // 게임 높이 (맵 이탈 방지를 위해 축소)
-    private static final int INITIAL_DELAY = 120;  // 프레임 속도 (ms)
+    private static final int INITIAL_DELAY = 130;  // 프레임 속도 (ms)
     private static final int SCORE_AREA_X = GAME_WIDTH - 130;
     private static final int SCORE_AREA_Y = 10;
     private static final int SCORE_AREA_WIDTH = 120;
@@ -34,6 +36,8 @@ public class SnakeGamePanel extends JPanel implements ActionListener {
     private Timer gameTimer;  // 게임 타이머
     private boolean isKeyInputLocked = false;
     private final HashMap<String, Image> images = new HashMap<>();
+    private Image gameOverBackground;
+    private FontManager fontManager = new FontManager();
 
     // --- [ 이벤트 ] ---
     private String activeEventMessage = "";
@@ -65,6 +69,7 @@ public class SnakeGamePanel extends JPanel implements ActionListener {
         setBackground(Color.BLACK);
         enableKeyListener(false);
         initButtons();
+        gameOverBackground = new ImageIcon(getClass().getResource("/images/Gameover.jpeg")).getImage();
 
         food = null;
         running = false;
@@ -84,7 +89,7 @@ public class SnakeGamePanel extends JPanel implements ActionListener {
             snakeBody.add(new Point(100 - i * TILE_SIZE, 100));
         }
         currentDirection = Direction.RIGHT;
-
+        
         loadAssets();
         spawnFood();
         enableKeyListener(true);
@@ -149,7 +154,7 @@ public class SnakeGamePanel extends JPanel implements ActionListener {
                 "tailUp", "tailDown", "tailLeft", "tailRight",
                 "bodyVertical", "bodyHorizontal",
                 "bodyTopLeft", "bodyTopRight", "bodyBottomLeft", "bodyBottomRight",
-                "apple"
+                "apple", "snakeBackground"
         };
         for (String key : imageKeys) {
             images.put(key, loadImage(key + ".png"));
@@ -162,13 +167,19 @@ public class SnakeGamePanel extends JPanel implements ActionListener {
 
     // --- [ 사과 생성 ] ---
     private void spawnFood() {
-        Random random = new Random();
-        int x, y;
-        do {
-            x = (random.nextInt(GAME_WIDTH / TILE_SIZE ) * TILE_SIZE) + 4;
-            y = (random.nextInt(GAME_HEIGHT / TILE_SIZE) * TILE_SIZE) + 4;
-        } while (isFoodInScoreArea(x, y) || isFoodOnSnake(new Point(x, y)));
-        food = new Point(x, y);
+    Random random = new Random();
+    final int MARGIN = 2;
+    boolean validPosition;
+    Point newFood;
+
+    do {
+        int x = (random.nextInt((GAME_WIDTH / TILE_SIZE) - 2 * MARGIN) + MARGIN) * TILE_SIZE;
+        int y = (random.nextInt((GAME_HEIGHT / TILE_SIZE) - 2 * MARGIN) + MARGIN) * TILE_SIZE;
+        newFood = new Point(x, y);
+        validPosition = !isFoodInScoreArea(x, y) && !snakeBody.contains(newFood);
+    } while (!validPosition);
+
+    food = newFood;
     }
 
     // 점수 영역 예외 처리
@@ -178,9 +189,9 @@ public class SnakeGamePanel extends JPanel implements ActionListener {
     }
 
     // 사과 예외 처리
-    private boolean isFoodOnSnake(Point foodPoint) {
-        return snakeBody.stream().anyMatch(segment -> segment.equals(foodPoint));
-    }
+    //private boolean isFoodOnSnake(Point foodPoint) {
+    //    return snakeBody.stream().anyMatch(segment -> segment.equals(foodPoint));
+    //}
 
     // --- [ 키 입력 처리 ] ---
     private void changeDirection(int keyCode) {
@@ -234,7 +245,7 @@ public class SnakeGamePanel extends JPanel implements ActionListener {
                     snakeBody.remove(snakeBody.size() - 1);
                 }
             }
-            if (applesEaten % 10f == 0) {
+            if (applesEaten % 7f == 0) {
                 triggerRandomEvent();
             }
         } else {
@@ -303,6 +314,12 @@ public class SnakeGamePanel extends JPanel implements ActionListener {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+        if (images.get("snakeBackground") != null) {
+            g.drawImage(images.get("snakeBackground"), 0, 0, 1344, 730, this);
+        } else {
+            g.setColor(Color.BLACK);
+            g.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+        }
         if (running) {
             g.drawImage(images.get("apple"), food.x, food.y, TILE_SIZE, TILE_SIZE, this);
             for (int i = 0; i < snakeBody.size(); i++) {
@@ -310,18 +327,18 @@ public class SnakeGamePanel extends JPanel implements ActionListener {
                 Point segment = snakeBody.get(i);
                 g.drawImage(segmentImage, segment.x, segment.y, TILE_SIZE, TILE_SIZE, this);
             }
-            g.setColor(Color.WHITE);
-            g.setFont(new Font("Arial", Font.BOLD, 20));
+            g.setColor(Color.BLACK);
+            g.setFont(fontManager.loadCustomFont(GameFont.JALNAN, 20f));
             g.drawString("점수: " + score, SCORE_AREA_X + 50, SCORE_AREA_Y + 20);
         } else {
             drawGameOverScreen(g);
         }
         if (!activeEventMessage.isEmpty()) {
-            g.setColor(Color.YELLOW);
-            g.setFont(new Font("Arial", Font.BOLD, 24));
+            g.setColor(Color.BLACK);
+            g.setFont(fontManager.loadCustomFont(FontManager.GameFont.DUNG_GEUN_MO, 28f));
             FontMetrics metrics = g.getFontMetrics();
             int x = (GAME_WIDTH - metrics.stringWidth(activeEventMessage)) / 2;
-            int y = GAME_HEIGHT / 5;
+            int y = GAME_HEIGHT / 5 + 25;
             g.drawString(activeEventMessage, x, y);
         }
     }
@@ -369,33 +386,55 @@ public class SnakeGamePanel extends JPanel implements ActionListener {
     }
 
     private void drawGameOverScreen(Graphics g) {
-        String gameOverText = "게임이 종료되었습니다.";
+        if (gameOverBackground != null) {
+            g.drawImage(gameOverBackground, 0, 0, GAME_WIDTH, GAME_HEIGHT, this);
+        } else {
+            g.setColor(Color.BLACK);
+            g.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+        }
+    
+        String gameOverText = "스네이크 게임이 종료되었습니다.";
         String scoreText = "점수: " + score;
         g.setColor(Color.WHITE);
-        g.setFont(new Font("Arial", Font.BOLD, 36));
+        g.setFont(fontManager.loadCustomFont(FontManager.GameFont.JALNAN, 36f));
         FontMetrics metrics = g.getFontMetrics();
-        g.drawString(gameOverText, (GAME_WIDTH - metrics.stringWidth(gameOverText)) / 2, GAME_HEIGHT / 2 - 40);
-        g.setFont(new Font("Arial", Font.BOLD, 28));
+        g.drawString(gameOverText, (GAME_WIDTH - metrics.stringWidth(gameOverText)) / 2, GAME_HEIGHT / 2 - 170);
+        g.setFont(fontManager.loadCustomFont(FontManager.GameFont.LINE_SEED_BOLD, 28f));
         metrics = g.getFontMetrics();
-        g.drawString(scoreText, (GAME_WIDTH - metrics.stringWidth(scoreText)) / 2, GAME_HEIGHT / 2 + 5);
+        g.drawString(scoreText, (GAME_WIDTH - metrics.stringWidth(scoreText)) / 2, GAME_HEIGHT / 2 - 120);
         restartButton.setVisible(true);
         mainMenuButton.setVisible(true);
         stopGame();
     }
 
     private void initButtons() {
-        Font buttonFont = new Font("Arial", Font.BOLD, 18);
+        Font buttonFont = fontManager.loadCustomFont(GameFont.JALNAN, 24f);
         restartButton.setFont(buttonFont);
         mainMenuButton.setFont(buttonFont);
 
+        Color buttonColor = new Color(165, 145, 109);
+
+        restartButton.setBackground(buttonColor);
+        restartButton.setForeground(Color.WHITE);
+        restartButton.setOpaque(true);
+        restartButton.setContentAreaFilled(false);
+        restartButton.setBorderPainted(false);
+        restartButton.setFocusPainted(false);
         restartButton.addActionListener(e -> startGame());
+
+        mainMenuButton.setBackground(buttonColor);
+        mainMenuButton.setForeground(Color.WHITE);
+        mainMenuButton.setOpaque(true);
+        mainMenuButton.setContentAreaFilled(false);
+        mainMenuButton.setBorderPainted(false);
+        mainMenuButton.setFocusPainted(false);
         mainMenuButton.addActionListener(e -> manager.switchTo("MainMenu"));
 
         restartButton.setVisible(false);
         mainMenuButton.setVisible(false);
         setLayout(null);
-        restartButton.setBounds(GAME_WIDTH / 2 - 100, GAME_HEIGHT / 2 + 50, 200, 50);
-        mainMenuButton.setBounds(GAME_WIDTH / 2 - 100, GAME_HEIGHT / 2 + 110, 200, 50);
+        restartButton.setBounds(GAME_WIDTH / 2 - 275, GAME_HEIGHT / 2 - 10, 200, 60);
+        mainMenuButton.setBounds(GAME_WIDTH / 2 + 140, GAME_HEIGHT / 2 - 10, 200, 60);
         add(restartButton);
         add(mainMenuButton);
     }
