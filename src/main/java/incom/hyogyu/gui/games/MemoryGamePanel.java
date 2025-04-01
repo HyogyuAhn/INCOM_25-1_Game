@@ -75,7 +75,6 @@ public class MemoryGamePanel extends JPanel {
         buttonPanel.add(buttons[i]);
         }
         
-        // Set up key bindings for q, w, e, r
         setFocusable(true);
         requestFocusInWindow();
         InputMap inputMap = this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -129,7 +128,7 @@ public class MemoryGamePanel extends JPanel {
         mainMenuButton.setFont(fontManager.loadCustomFont(GameFont.JALNAN, 20f));
         mainMenuButton.addActionListener(e -> {
             manager.switchTo("MainMenu");
-            stopGame(); // 메인으로 갈 때 UI 초기화
+            stopGame();
         });
         mainMenuButton.setVisible(false);
         controlPanel.add(mainMenuButton);
@@ -182,10 +181,9 @@ public class MemoryGamePanel extends JPanel {
 
     public void startGame() {
         stopGame();
-        removeAll();  // UI 초기화
+        removeAll();
         setLayout(new BorderLayout());
-        
-        // UI를 다시 생성
+
         JPanel headerPanel = new JPanel();
         headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
         headerPanel.setOpaque(false);
@@ -238,8 +236,8 @@ public class MemoryGamePanel extends JPanel {
         lives = 3;
         isGameOver = false;
 
-        revalidate(); // UI 갱신
-        repaint(); // 다시 그리기
+        revalidate();
+        repaint();
 
         Timer startDelay = new Timer(1000, e -> {
             nextRound();
@@ -384,7 +382,7 @@ public class MemoryGamePanel extends JPanel {
         scoreDisplayLabel.setBounds(getWidth() / 2 - 200, 220, 400, 50);
         add(scoreDisplayLabel);
 
-        Color buttonColor = new Color(165, 145, 109); // 버튼 색상
+        Color buttonColor = new Color(165, 145, 109);
 
         JButton restartBtn = new JButton("다시하기");
         restartBtn.setFont(fontManager.loadCustomFont(GameFont.JALNAN, 24f));
